@@ -1,0 +1,37 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+build_log.txt
+.env
+.venv
+venv/
+*.spec
+!SectionCAD.spec
+.idea/
+.vscode/
+*.swp
+.pytest_cache/
+
+# Project exports / temporary files
+*.csv
+*.zip
+*.scad
+*.dxf
+
+# Mais on VERSIONNE les sections d'exemple fournies
+!exemples/*.scad
+
+# Claude Code internal data
+.claude/
+
+# Traductions Qt compilees (generees ; le catalogue Python est la source de verite)
+*.qm
+
+# Fiches temoins generees pendant le dev (regenerables). On conserve Capture.PNG
+# et l'analyse Gemini comme reference de specification.
+Proposition_rapport_secondaire/fiche_*.html

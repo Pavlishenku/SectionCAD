@@ -1,0 +1,96 @@
+# =============================================================================
+#  SectionCAD — configuration projet (PEP 621 / PEP 735 / PEP 639)
+# -----------------------------------------------------------------------------
+#  Ce fichier est ADDITIF : il N'altere PAS requirements.txt ni le workflow pip
+#  decrit dans le README. requirements.txt reste le miroir « pip » historique
+#  (regenere depuis uv.lock, voir DISTRIBUTION.md).
+#
+#  SectionCAD est une APPLICATION (on distribue un .exe), pas une bibliotheque
+#  publiee sur PyPI. En consequence :
+#    - PAS de section [build-system]  -> uv ne tente pas de « builder » le projet
+#    - [tool.uv] package = false       -> le projet n'est pas installe comme paquet
+#  L'executable Windows est produit par PyInstaller (voir SectionCAD.spec),
+#  PAS par `uv build` (uv build produit des wheel/sdist, jamais un .exe).
+# =============================================================================
+
+[project]
+name = "sectioncad"
+# PEP 440 : « 1.0.dev0 » est l'ecriture normalisee de la « pre-version v1.0-dev »
+# annoncee dans le README (« v1.0-dev » n'est pas une version PEP 440 valide).
+version = "1.0.dev0"
+description = "SectionCAD — geometrie et proprietes de sections civiles (FEA : J, Cw, centre de cisaillement)."
+readme = "README.md"
+
+# Licence du projet : GNU GPL v3 ou ulterieure (en-tete GPLv3 confirme,
+# fichier LICENSE present a la racine). Expression SPDX + fichier (PEP 639).
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+
+authors = [
+    { name = "Pavlishenku" },
+]
+keywords = ["genie civil", "sections", "proprietes", "torsion", "gauchissement", "FEA", "PyQt6"]
+
+# Contrainte d'EXECUTION de l'application. Distincte de .python-version (qui
+# epingle l'interpreteur de DEV/BUILD). On garde >=3.10 comme dans le README ;
+# on N'ecrit PAS 3.14 ici (role different). 3.10.0 exactement est exclu car
+# PyInstaller ne le supporte pas (bug connu) ; >=3.10 suffit en pratique car
+# les wheels du stack ciblent 3.10.x corriges.
+requires-python = ">=3.10"
+
+# Dependances d'EXECUTION : memes contraintes que requirements.txt (miroir pip).
+# sectionproperties tire matplotlib / rich / more-itertools / cytriangle comme
+# deps DURES ; shapely tire GEOS (DLL natives) ; scipy/numpy tirent OpenBLAS.
+dependencies = [
+    "PyQt6>=6.5.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "sectionproperties>=3.0",
+    "shapely>=2.0",
+]
+
+[project.urls]
+# A completer si un depot public existe.
+# Homepage = "https://example.invalid/sectioncad"
+
+# Point d'entree console. main:main = la fonction main() de main.py.
+# Note : ce script n'est exploitable que si le projet est installable
+# (package = true). Avec package = false (cas present), l'application se lance
+# par `uv run python main.py`. L'entree reste declaree a titre documentaire et
+# pour PyInstaller (qui empaquete main.py).
+[project.scripts]
+sectioncad = "main:main"
+
+# -----------------------------------------------------------------------------
+#  Groupes de dependances de DEVELOPPEMENT (PEP 735, [dependency-groups]).
+#  IMPORTANT : ces groupes ne sont JAMAIS publies ni installes chez un
+#  utilisateur « pip install ». Ils restent strictement cote dev/build.
+#  On ne les met PAS dans [project.optional-dependencies] pour cette raison.
+# -----------------------------------------------------------------------------
+[dependency-groups]
+# Tests sous l'interpreteur fige (voir .python-version).
+dev = [
+    "pytest>=8.0",
+]
+# Outil de packaging recommande : PyInstaller 6.20+ (premiere version qui
+# supporte Python 3.8-3.14 ; mode onedir + .spec versionne). cf. DISTRIBUTION.md.
+build = [
+    "pyinstaller>=6.20",
+]
+
+# -----------------------------------------------------------------------------
+#  Configuration uv
+# -----------------------------------------------------------------------------
+[tool.uv]
+# Application, pas paquet : ne pas construire/installer SectionCAD comme module.
+package = false
+# `uv sync` / `uv run` installent par defaut le groupe dev (tests). Le groupe
+# « build » reste explicite : `uv sync --group build` ou
+# `uv run --group build pyinstaller ...`.
+default-groups = ["dev"]
+
+# -----------------------------------------------------------------------------
+#  Pytest (additif ; n'impose rien que les tests existants n'attendent deja).
+# -----------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
